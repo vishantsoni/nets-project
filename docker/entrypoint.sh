@@ -8,7 +8,10 @@ PORT="${PORT:-8000}"
 export PORT
 
 # Render the nginx vhost with the actual port.
-envsubst '${PORT}' < /etc/nginx/templates/default.conf.template \
+# Uses sed rather than envsubst: gettext is not present in the php alpine image,
+# and the template only contains nginx-safe placeholders.
+sed "s|\${PORT}|${PORT}|g" \
+    /etc/nginx/templates/default.conf.template \
     > /etc/nginx/http.d/default.conf
 
 # Serverless/managed filesystems are read-only outside of /tmp.

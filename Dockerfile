@@ -14,7 +14,34 @@ RUN npm run build
 
 
 # ---------- Stage 2: Composer dependencies ----------
-FROM composer:2 AS vendor
+# Built on the same PHP base and extension set as the runtime stage so that
+# composer.lock's platform requirements resolve during `composer install`.
+FROM php:8.3-cli-alpine AS vendor
+
+RUN apk add --no-cache \
+        libzip-dev \
+        libpng-dev \
+        libjpeg-turbo-dev \
+        freetype-dev \
+        oniguruma-dev \
+        icu-dev \
+        linux-headers \
+        $PHPIZE_DEPS \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j"$(nproc)" \
+        bcmath \
+        exif \
+        gd \
+        intl \
+        mbstring \
+        opcache \
+        pcntl \
+        pdo_mysql \
+        zip \
+    && apk del $PHPIZE_DEPS \
+    && rm -rf /var/cache/apk/*
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 
@@ -25,7 +52,8 @@ RUN composer install \
         --no-scripts \
         --no-interaction \
         --prefer-dist \
-        --optimize-autoloader
+        --optimize-autoloader \
+    && composer clear-cache
 
 
 # ---------- Stage 3: PHP base with extensions ----------
@@ -97,7 +125,7 @@ ENV PORT=8080 \
     APP_ENV=production \
     APP_DEBUG=false \
     VIEW_COMPILED_PATH=/tmp/views \
-    CACHE_STORE=file \
+    CACHE_STORE=array \
     CACHE_PREFIX=nets \
     SESSION_DRIVER=database \
     QUEUE_CONNECTION=sync \
