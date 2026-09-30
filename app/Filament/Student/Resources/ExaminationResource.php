@@ -72,7 +72,7 @@ class ExaminationResource extends Resource
                   ->label("Take Exam")
                   ->color("success")
                   ->icon("heroicon-o-play")
-                  ->action(fn (Examination $record) => redirect()->route("student.exams.take", $record->id))
+                  ->action(fn (Examination $record) => redirect()->route("filament.student.resources.examinations.take", $record->id))
                   ->visible(fn (Examination $record) => $record->is_published && $record->is_active),
           ])
           ->bulkActions([]);

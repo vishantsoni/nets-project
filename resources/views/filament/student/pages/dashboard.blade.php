@@ -1,4 +1,6 @@
 <x-filament-panels::page>
+    @php($stats = $this->getStats())
+
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         <div class="p-6 bg-white rounded-lg shadow">
             <h3 class="text-sm font-medium text-gray-500">Available Exams</h3>
@@ -21,7 +23,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div>
             <h3 class="text-lg font-semibold mb-3">Available Exams</h3>
-            @if($getAvailableExams()->isNotEmpty())
+            @if($this->getAvailableExams()->isNotEmpty())
                 <table class="w-full">
                     <thead>
                         <tr class="text-left border-b">
@@ -32,13 +34,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($getAvailableExams() as $exam)
+                        @foreach($this->getAvailableExams() as $exam)
                             <tr class="border-b">
                                 <td class="py-2">{{ Str::limit($exam->title, 30) }}</td>
                                 <td class="py-2">{{ $exam->subject->name ?? 'N/A' }}</td>
                                 <td class="py-2">{{ $exam->duration }} min</td>
                                 <td class="py-2">
-                                    <a href="{{ route('student.exams.take', $exam->id) }}" class="text-sm text-primary-600 hover:text-primary-900">Take Exam</a>
+                                    <a href="{{ route('filament.student.resources.examinations.take', $exam->id) }}" class="text-sm text-primary-600 hover:text-primary-900">Take Exam</a>
                                 </td>
                             </tr>
                         @endforeach
@@ -51,7 +53,7 @@
 
         <div>
             <h3 class="text-lg font-semibold mb-3">Recent Results</h3>
-            @if($getRecentResults()->isNotEmpty())
+            @if($this->getRecentResults()->isNotEmpty())
                 <table class="w-full">
                     <thead>
                         <tr class="text-left border-b">
@@ -62,13 +64,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($getRecentResults() as $result)
+                        @foreach($this->getRecentResults() as $result)
                             <tr class="border-b">
                                 <td class="py-2">{{ Str::limit($result->attempt->examination->title ?? 'N/A', 30) }}</td>
                                 <td class="py-2">{{ $result->obtained_marks }} / {{ $result->total_marks }}</td>
                                 <td class="py-2">{{ $result->percentage }}%</td>
                                 <td class="py-2">
-                                    <a href="{{ route('student.results.view', $result->id) }}" class="text-sm text-primary-600 hover:text-primary-900">View</a>
+                                    <a href="{{ route('filament.student.resources.results.view', $result->id) }}" class="text-sm text-primary-600 hover:text-primary-900">View</a>
                                 </td>
                             </tr>
                         @endforeach

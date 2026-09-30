@@ -78,7 +78,10 @@ class ExaminationResource extends Resource
 
     public static function getRelations(): array
     {
-        return [RelationManagers\ExamSectionRelationManager::class];
+        return [
+            RelationManagers\ExamSectionRelationManager::class,
+            RelationManagers\ExamQuestionRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

@@ -61,22 +61,6 @@ class DatabaseSeeder extends Seeder
             $admin->assignRole('super_admin');
         }
 
-        if (! $instituteAdmin->hasRole('institute_admin')) {
-            $instituteAdmin->assignRole('institute_admin');
-        }
-
-        if (! $teacher->hasRole('teacher')) {
-            $teacher->assignRole('teacher');
-        }
-
-        if (! $student1->hasRole('student')) {
-            $student1->assignRole('student');
-        }
-
-        if (! $student2->hasRole('student')) {
-            $student2->assignRole('student');
-        }
-
         $instituteAdmin = User::firstOrCreate(
             ['email' => 'institute@nets.com'],
             [
@@ -141,6 +125,22 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
+        if (! $instituteAdmin->hasRole('institute_admin')) {
+            $instituteAdmin->assignRole('institute_admin');
+        }
+
+        if (! $teacher->hasRole('teacher')) {
+            $teacher->assignRole('teacher');
+        }
+
+        if (! $student1->hasRole('student')) {
+            $student1->assignRole('student');
+        }
+
+        if (! $student2->hasRole('student')) {
+            $student2->assignRole('student');
+        }
+
         $subjects = [
             ['name' => 'Mathematics', 'code' => 'MATH101', 'description' => 'Advanced Mathematics'],
             ['name' => 'Physics', 'code' => 'PHY101', 'description' => 'Basic Physics'],
@@ -202,11 +202,18 @@ class DatabaseSeeder extends Seeder
             ]);
 
             $correctOption = ($i % 4) + 1;
+            $correctAnswer = $i * 3;
+            $incorrectAnswers = [$correctAnswer - 3, $correctAnswer + 3, $correctAnswer + 6];
+            $incorrectAnswerIndex = 0;
             for ($j = 1; $j <= 4; $j++) {
+                $optionAnswer = $j === $correctOption
+                    ? $correctAnswer
+                    : $incorrectAnswers[$incorrectAnswerIndex++];
+
                 QuestionOption::create([
                     'question_id' => $question->id,
-                    'option_text' => 'Option ' . $j . ' for question ' . $i,
-                    'option_value' => chr(64 + $j),
+                    'option_text' => (string) $optionAnswer,
+                    'option_value' => (string) $optionAnswer,
                     'is_correct' => ($j === $correctOption),
                     'sort_order' => $j,
                 ]);

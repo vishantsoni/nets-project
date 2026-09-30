@@ -16,7 +16,7 @@ class ViewExamination extends ViewRecord
                 ->label("Take Exam")
                 ->color("success")
                 ->icon("heroicon-o-play")
-                ->url(fn ($record) => route("student.exams.take", $record)),
+                ->url(fn ($record) => route("filament.student.resources.examinations.take", $record)),
         ];
     }
 }

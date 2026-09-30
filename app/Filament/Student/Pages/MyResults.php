@@ -7,7 +7,7 @@ use Filament\Pages\Page;
 
 class MyResults extends Page
 {
-    protected static ?string $navigationIcon = 'heroicon-o-academic-badge';
+    protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
     protected static ?string $title = 'My Results';
     protected static string $view = 'filament.student.pages.my-results';
     protected static ?string $navigationGroup = 'Examinations';

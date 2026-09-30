@@ -1,3 +1,124 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+    .rich-text {
+        @apply text-gray-700 leading-relaxed;
+    }
+    
+    .rich-text h1,
+    .rich-text h2,
+    .rich-text h3,
+    .rich-text h4,
+    .rich-text h5,
+    .rich-text h6 {
+        @apply font-semibold text-gray-900 mt-6 mb-3;
+    }
+    
+    .rich-text h1 { @apply text-2xl; }
+    .rich-text h2 { @apply text-xl; }
+    .rich-text h3 { @apply text-lg; }
+    .rich-text h4 { @apply text-base; }
+    
+    .rich-text p {
+        @apply mb-4 text-gray-700;
+    }
+    
+    .rich-text ul {
+        @apply list-disc list-inside mb-4 space-y-2 ml-4;
+    }
+    
+    .rich-text ol {
+        @apply list-decimal list-inside mb-4 space-y-2 ml-4;
+    }
+    
+    .rich-text li {
+        @apply text-gray-700 leading-relaxed;
+    }
+    
+    .rich-text li::marker {
+        @apply text-indigo-600 font-medium;
+    }
+    
+    .rich-text strong,
+    .rich-text b {
+        @apply font-semibold text-gray-900;
+    }
+    
+    .rich-text em,
+    .rich-text i {
+        @apply italic text-gray-700;
+    }
+    
+    .rich-text a {
+        @apply text-indigo-600 hover:text-indigo-700 underline underline-offset-2;
+    }
+    
+    .rich-text blockquote {
+        @apply border-l-4 border-indigo-500 pl-4 italic text-gray-600 my-4 bg-indigo-50 py-2 rounded-r-lg;
+    }
+    
+    .rich-text code {
+        @apply bg-gray-100 text-indigo-600 px-1.5 py-0.5 rounded text-sm font-mono;
+    }
+    
+    .rich-text pre {
+        @apply bg-gray-900 text-gray-100 p-4 rounded-xl overflow-x-auto mb-4;
+    }
+    
+    .rich-text pre code {
+        @apply bg-transparent text-inherit p-0 text-sm;
+    }
+    
+    .rich-text table {
+        @apply w-full border-collapse mb-4;
+    }
+    
+    .rich-text th,
+    .rich-text td {
+        @apply border border-gray-200 px-3 py-2 text-left;
+    }
+    
+    .rich-text th {
+        @apply bg-indigo-50 font-semibold text-gray-900;
+    }
+    
+    .rich-text td {
+        @apply bg-white text-gray-700;
+    }
+    
+    .rich-text tr:nth-child(even) td {
+        @apply bg-gray-50;
+    }
+    
+    .rich-text img {
+        @apply max-w-full h-auto rounded-lg my-4 shadow-sm;
+    }
+    
+    .rich-text hr {
+        @apply border-gray-200 my-6;
+    }
+    
+    .rich-text .checklist {
+        @apply space-y-2;
+    }
+    
+    .rich-text .checklist li {
+        @apply flex items-center gap-2;
+    }
+    
+    .rich-text .checklist input[type="checkbox"] {
+        @apply w-5 h-5 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500;
+    }
+}
+
+@layer utilities {
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+}

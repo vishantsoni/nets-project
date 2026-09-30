@@ -9,15 +9,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class StudyMaterial extends Model
 {
     protected $fillable = [
-        'title', 'description', 'subject_id', 'topic_id', 'type',
-        'file_path', 'thumbnail', 'is_paid', 'price', 'is_published',
-        'download_count', 'institute_id', 'uploaded_by',
+        'title', 'description', 'description_rich', 'book_structure', 'other_information',
+        'subject_id', 'topic_id', 'type',
+        'file_path', 'demo_file_path', 'thumbnail', 'is_paid', 'price', 'discount_price', 'edition', 'set_of',
+        'is_published', 'download_count', 'institute_id', 'uploaded_by',
     ];
 
     protected $casts = [
         'is_paid' => 'boolean',
         'is_published' => 'boolean',
         'price' => 'decimal:2',
+        'discount_price' => 'decimal:2',
         'download_count' => 'integer',
     ];
 

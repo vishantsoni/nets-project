@@ -17,7 +17,7 @@ class StudentExamController extends Controller
         $request->validate([
             "attempt_id" => "required|exists:exam_attempts,id",
             "question_id" => "required|exists:questions,id",
-            "answer" => "nullable|string",
+            "answer" => "nullable|numeric",
         ]);
 
         $attempt = ExamAttempt::findOrFail($request->attempt_id);
@@ -98,7 +98,7 @@ class StudentExamController extends Controller
             "time_taken" => now()->diffInSeconds($attempt->start_time),
         ]);
 
-        Result::updateOrCreate(
+        $result = Result::updateOrCreate(
             ["attempt_id" => $attempt->id],
             [
                 "total_questions" => $questions->count(),
@@ -114,7 +114,10 @@ class StudentExamController extends Controller
             ]
         );
 
-        return response()->json(["success" => true]);
+        return response()->json([
+            "success" => true,
+            "redirect_url" => \App\Filament\Student\Resources\ResultResource::getUrl("view", ["record" => $result]),
+        ]);
     }
 
     protected function evaluateAnswer($question, $answer): bool

@@ -4,6 +4,8 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\CategoryResource\Pages;
 use App\Models\Category;
 use Filament\Forms;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -29,7 +31,19 @@ class CategoryResource extends Resource
                     Forms\Components\Toggle::make("is_active")->default(true),
                 ])->columns(2),
             Forms\Components\Section::make()
-                ->schema([Forms\Components\Textarea::make("description")->rows(3)]),
+                ->schema([
+                    Forms\Components\Textarea::make("description")->rows(3),
+                    FileUpload::make("thumbnail")
+                        ->label("Thumbnail")
+                        ->image()
+                        ->directory("categories/thumbnails")
+                        ->visibility("public")
+                        ->maxSize(2048),
+                    TextInput::make("icon")
+                        ->label("Icon (CSS Class)")
+                        ->placeholder("e.g., heroicon-o-academic-cap")
+                        ->maxLength(255),
+                ]),
         ]);
     }
 

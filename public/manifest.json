@@ -1,0 +1,17 @@
+{
+  "name": "NETS - Study Materials, E-Commerce, Examinations",
+  "short_name": "NETS",
+  "description": "Comprehensive Study Material, E-Commerce, B2B Query Management, and Online Examination System",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/images/logo_nets.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -5,16 +5,34 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\StoreController;
 use Illuminate\Support\Facades\Route;
 
+use App\Models\Hero;
+
 Route::get('/', function () {
+    $heroes = Hero::active()->ordered()->get();
     $subjects = \App\Models\Subject::where('is_active', true)->with('topics')->limit(8)->get();
     $exams = \App\Models\Examination::where('is_active', true)->where('is_published', true)
         ->where(function ($q) { $q->whereNull('start_time')->orWhere('start_time', '<=', now()); })
         ->where(function ($q) { $q->whereNull('end_time')->orWhere('end_time', '>=', now()); })
         ->with('subject')->limit(6)->get();
     $materials = \App\Models\StudyMaterial::where('is_published', true)->with('subject')->limit(8)->get();
-    $categories = \App\Models\Category::all();
+    
+    // Main categories with children for mega menu
+    $mainCategories = \App\Models\Category::whereNull('parent_id')
+        ->where('is_active', true)
+        ->with('children')
+        ->orderBy('name')
+        ->get();
+    
+    // Featured categories with product count
+    $featuredCategories = \App\Models\Category::withCount(['studyMaterials' => function($q) {
+        $q->where('is_published', true);
+    }])
+        ->whereHas('studyMaterials', fn($q) => $q->where('is_published', true))
+        ->orderBy('study_materials_count', 'desc')
+        ->limit(4)
+        ->get();
 
-    return view('home', compact('subjects', 'exams', 'materials', 'categories'));
+    return view('home', compact('heroes', 'subjects', 'exams', 'materials', 'mainCategories', 'featuredCategories'));
 })->name('home');
 
 Route::middleware('guest')->group(function () {

@@ -15,47 +15,112 @@ class StoreController extends Controller
 {
     public function index()
     {
-        $materials = StudyMaterial::where("is_published", true)
-            ->with("subject")
-            ->when(request("category"), function ($q, $cat) {
-                $q->whereHas("categories", fn ($q2) => $q2->where("slug", $cat));
-            })
-            ->when(request("search"), function ($q, $search) {
+        $query = StudyMaterial::where("is_published", true)->with(["subject", "categories"]);
+
+        // Category filter
+        if (request("category")) {
+            $query->whereHas("categories", fn ($q) => $q->where("slug", request("category")));
+        }
+
+        // Search filter
+        if (request("search")) {
+            $search = request("search");
+            $query->where(function ($q) use ($search) {
                 $q->where("title", "like", "%$search%")
-                  ->orWhere("description", "like", "%$search%");
-            })
-            ->paginate(12);
+                  ->orWhere("description", "like", "%$search%")
+                  ->orWhere("description_rich", "like", "%$search%");
+            });
+        }
 
-        $categories = Category::all();
-        $featuredMaterials = StudyMaterial::where("is_published", true)->with("subject")->limit(4)->get();
+        // Sort filter
+        $sort = request("sort", "latest");
+        switch ($sort) {
+            case "price_asc":
+                $query->orderBy("price", "asc");
+                break;
+            case "price_desc":
+                $query->orderBy("price", "desc");
+                break;
+            case "popular":
+                $query->orderBy("download_count", "desc");
+                break;
+            default:
+                $query->latest();
+        }
 
-        return view("store", compact("materials", "categories", "featuredMaterials"));
+        $materials = $query->paginate(12)->withQueryString();
+
+        $categories = Category::with("children")->whereNull("parent_id")->get();
+        $featuredCategories = Category::withCount("studyMaterials")
+            ->whereHas("studyMaterials", fn($q) => $q->where("is_published", true))
+            ->orderBy("study_materials_count", "desc")
+            ->limit(4)
+            ->get();
+        $currentCategory = request("category") ? Category::where("slug", request("category"))->first() : null;
+
+        return view("store", compact("materials", "categories", "featuredCategories", "currentCategory"));
     }
 
     public function category($category)
     {
-        $materials = StudyMaterial::where("is_published", true)
+        $currentCategory = Category::where("slug", $category)->firstOrFail();
+
+        $query = StudyMaterial::where("is_published", true)
             ->whereHas("categories", fn ($q) => $q->where("slug", $category))
-            ->with("subject")
-            ->paginate(12);
+            ->with(["subject", "categories"]);
 
-        $categories = Category::all();
+        // Sort filter
+        $sort = request("sort", "latest");
+        switch ($sort) {
+            case "price_asc":
+                $query->orderBy("price", "asc");
+                break;
+            case "price_desc":
+                $query->orderBy("price", "desc");
+                break;
+            case "popular":
+                $query->orderBy("download_count", "desc");
+                break;
+            default:
+                $query->latest();
+        }
 
-        return view("store", compact("materials", "categories"));
+        $materials = $query->paginate(12)->withQueryString();
+
+        $categories = Category::with("children")->whereNull("parent_id")->get();
+        $featuredCategories = Category::withCount("studyMaterials")
+            ->whereHas("studyMaterials", fn($q) => $q->where("is_published", true))
+            ->orderBy("study_materials_count", "desc")
+            ->limit(4)
+            ->get();
+
+        return view("store", compact("materials", "categories", "featuredCategories", "currentCategory"));
     }
 
     public function show($id)
     {
-        $material = StudyMaterial::where("is_published", true)->with("subject")->findOrFail($id);
+        $material = StudyMaterial::where("is_published", true)
+            ->with(["subject", "categories"])
+            ->findOrFail($id);
 
-        return view("product", compact("material"));
+        // Get related materials (same categories, excluding current)
+        $categoryIds = $material->categories->pluck("id");
+        $relatedMaterials = StudyMaterial::where("is_published", true)
+            ->where("study_materials.id", "!=", $id)
+            ->whereHas("categories", fn($q) => $q->whereIn("categories.id", $categoryIds))
+            ->with(["subject", "categories"])
+            ->inRandomOrder()
+            ->limit(4)
+            ->get();
+
+        return view("product", compact("material", "relatedMaterials"));
     }
 
     public function addToCart(Request $request)
     {
         $request->validate([
             "material_id" => "required|exists:study_materials,id",
-            "quantity" => "required|integer|min:1",
+            "quantity" => "required|integer|min:1|max:10",
         ]);
 
         $material = StudyMaterial::findOrFail($request->material_id);
@@ -66,11 +131,13 @@ class StoreController extends Controller
 
         CartItem::updateOrCreate(
             ["user_id" => Auth::id(), "item_id" => $material->id, "item_type" => "study_material"],
-            ["quantity" => $request->quantity, "unit_price" => $material->price]
+            ["quantity" => $request->quantity, "unit_price" => $material->discount_price ?? $material->price]
         );
 
+        $cartCount = CartItem::where("user_id", Auth::id())->sum("quantity");
+
         if ($request->expectsJson()) {
-            return response()->json(["success" => true, "message" => "Added to cart"]);
+            return response()->json(["success" => true, "message" => "Added to cart", "cart_count" => $cartCount]);
         }
 
         return redirect()->route("cart")->with("success", "Added to cart");

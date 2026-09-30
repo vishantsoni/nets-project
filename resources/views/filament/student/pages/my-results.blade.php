@@ -1,5 +1,9 @@
 <x-filament-panels::page>
-    @if($getAttempts()->isNotEmpty())
+    @php
+        $attempts = $this->getAttempts();
+    @endphp
+
+    @if($attempts->isNotEmpty())
         <div class="overflow-x-auto">
             <table class="w-full">
                 <thead>
@@ -14,7 +18,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($getAttempts() as $attempt)
+                    @foreach($attempts as $attempt)
                         <tr class="border-b">
                             <td class="py-3">{{ Str::limit($attempt->examination->title ?? 'N/A', 40) }}</td>
                             <td class="py-3">{{ $attempt->attempt_number }}</td>
@@ -24,7 +28,7 @@
                             <td class="py-3">{{ $attempt->started_at?->format('M d, Y') ?? 'N/A' }}</td>
                             <td class="py-3">
                                 @if($attempt->result)
-                                    <a href="{{ route('student.results.view', $attempt->result->id) }}" class="text-sm text-primary-600">View</a>
+                                    <a href="{{ route('filament.student.resources.results.view', $attempt->result->id) }}" class="text-sm text-primary-600">View</a>
                                 @endif
                             </td>
                         </tr>

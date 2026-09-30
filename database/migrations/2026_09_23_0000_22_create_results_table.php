@@ -19,6 +19,7 @@ return new class extends Migration
             $table->decimal('total_marks', 8, 2)->default(0);
             $table->decimal('obtained_marks', 8, 2)->default(0);
             $table->decimal('percentage', 8, 2)->default(0);
+            $table->boolean('is_passed')->nullable();
             $table->integer('time_taken')->default(0)->comment('Seconds');
             $table->integer('rank_position')->nullable();
             $table->text('subject_wide_performance')->nullable();

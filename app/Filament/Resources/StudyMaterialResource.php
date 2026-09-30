@@ -15,7 +15,7 @@ use Filament\Tables\Table;
 class StudyMaterialResource extends Resource
 {
     protected static ?string $model = StudyMaterial::class;
-    protected static ?string $navigationIcon = "heroicon-o-academic-badge";
+    protected static ?string $navigationIcon = "heroicon-o-academic-cap";
     protected static ?string $navigationGroup = "Study Materials";
     protected static ?int $navigationSort = 1;
 
@@ -34,12 +34,16 @@ class StudyMaterialResource extends Resource
             Forms\Components\Section::make("Media")
                 ->schema([
                     Forms\Components\FileUpload::make("file_path")->label("File")->directory("study-materials"),
+                    Forms\Components\FileUpload::make("demo_file_path")->label("Demo File")->directory("study-materials/demo"),
                     Forms\Components\FileUpload::make("thumbnail")->image()->directory("study-materials/thumbnails"),
-                ])->columns(2),
+                ])->columns(3),
             Forms\Components\Section::make("Pricing & Publishing")
                 ->schema([
                     Forms\Components\Toggle::make("is_paid")->default(false),
                     Forms\Components\TextInput::make("price")->numeric()->default(0)->prefix("INR"),
+                    Forms\Components\TextInput::make("discount_price")->numeric()->nullable()->prefix("INR")->label("Discount Price"),
+                    Forms\Components\TextInput::make("edition")->nullable()->label("Edition (e.g., 2026)"),
+                    Forms\Components\TextInput::make("set_of")->nullable()->label("Set Of (e.g., 3 Books)"),
                     Forms\Components\Toggle::make("is_published")->default(false),
                 ])->columns(3),
             Forms\Components\Section::make("Categories")
@@ -49,7 +53,23 @@ class StudyMaterialResource extends Resource
                         ->columns(2),
                 ]),
             Forms\Components\Section::make("Description")
-                ->schema([Forms\Components\Textarea::make("description")->rows(4)]),
+                ->schema([Forms\Components\RichEditor::make("description")->toolbarButtons([
+                    'bold', 'italic', 'underline', 'strike',
+                    'h2', 'h3', 'bulletList', 'orderedList',
+                    'link', 'blockquote', 'codeBlock', 'undo', 'redo'
+                ])]),
+            Forms\Components\Section::make("Book Structure")
+                ->schema([Forms\Components\RichEditor::make("book_structure")->toolbarButtons([
+                    'bold', 'italic', 'underline', 'strike',
+                    'h2', 'h3', 'bulletList', 'orderedList',
+                    'link', 'blockquote', 'codeBlock', 'table', 'undo', 'redo'
+                ])]),
+            Forms\Components\Section::make("Other Information")
+                ->schema([Forms\Components\RichEditor::make("other_information")->toolbarButtons([
+                    'bold', 'italic', 'underline', 'strike',
+                    'h2', 'h3', 'bulletList', 'orderedList',
+                    'link', 'blockquote', 'codeBlock', 'undo', 'redo'
+                ])]),
         ]);
     }
 

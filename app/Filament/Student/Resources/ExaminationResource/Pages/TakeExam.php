@@ -46,15 +46,24 @@ class TakeExam extends Page
 
     public function getQuestions(): array
     {
-        return $this->exam->questions()->with("options")->get()->map(function ($q) {
-            return [
-                "id" => $q->id,
-                "question_text" => $q->question_text,
-                "type" => $q->type,
-                "options" => $q->options,
-                "marks" => $q->marks,
-            ];
-        })->toArray();
+        // Load through the exam_questions pivot (ExamQuestion) so we can read the
+        // per-exam marks/sort_order, and so section_id (nullable) does not
+        // accidentally filter questions out of the student's view.
+        return $this->exam->examQuestions()
+            ->with("question.options")
+            ->orderBy("sort_order")
+            ->get()
+            ->map(function ($examQuestion) {
+                $q = $examQuestion->question;
+
+                return [
+                    "id" => $q->id,
+                    "question_text" => $q->question_text,
+                    "type" => $q->question_type,
+                    "options" => $q->options,
+                    "marks" => $examQuestion->marks,
+                ];
+            })->toArray();
     }
 
     public function getAttemptId(): int

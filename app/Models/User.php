@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Filament\Models\Panel;
+use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -46,7 +46,11 @@ class User extends Authenticatable
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->is_active && $this->role === 'admin';
+        return $this->is_active && match ($panel->getId()) {
+            'student' => $this->isStudent(),
+            'admin' => $this->isAdmin(),
+            default => false,
+        };
     }
 
     public function isAdmin(): bool

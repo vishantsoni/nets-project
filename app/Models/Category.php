@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 class Category extends Model
 {
     protected $fillable = [
-        'name', 'slug', 'description', 'parent_id', 'is_active', 'created_by',
+        'name', 'slug', 'description', 'thumbnail', 'icon', 'parent_id', 'is_active', 'created_by',
     ];
 
     protected $casts = [

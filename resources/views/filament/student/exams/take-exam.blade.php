@@ -119,16 +119,19 @@
                     </template>
                 </div>
 
-                <button @click="nextQuestion()" :disabled="currentQuestion === visibleQuestions.length - 1" class="px-4 py-2 bg-gray-100 rounded-lg disabled:opacity-50">
-                    Next
-                </button>
+                <div class="flex items-center gap-3">
+                    <button @click="nextQuestion()" :disabled="currentQuestion === visibleQuestions.length - 1" class="px-4 py-2 bg-gray-100 rounded-lg disabled:opacity-50">
+                        Next
+                    </button>
+                    <button type="button"
+                            @click="submitExam()"
+                            :disabled="isSubmitting"
+                            class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50"
+                            x-text="isSubmitting ? 'Submitting...' : 'Submit Exam'">
+                    </button>
+                </div>
             </div>
-
-            <div class="flex justify-between mt-6">
-                <button @click="submitExam()" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                    Submit Exam
-                </button>
-            </div>
+            <p x-show="submissionError" x-text="submissionError" class="mt-3 text-sm text-danger-600" role="alert"></p>
         </div>
     </div>
 
@@ -138,14 +141,16 @@
             currentStep: 'instructions',
             currentQuestion: 0,
             timeLeft: {{ $exam->duration }} * 60,
-            questions: @json($getQuestions()),
-            attemptId: {{ $getAttemptId() }},
+            questions: @json($this->getQuestions()),
+            attemptId: {{ $this->getAttemptId() }},
             answers: {},
             timer: null,
+            isSubmitting: false,
+            submissionError: '',
 
             initExam() {
-                this.questions = @json($getQuestions());
-                if ({{ $isShuffleQuestions() ? 'true' : 'false' }}) {
+                this.questions = @json($this->getQuestions());
+                if ({{ $this->isShuffleQuestions() ? 'true' : 'false' }}) {
                     this.questions = this.shuffleArray([...this.questions]);
                 }
             },
@@ -159,7 +164,7 @@
                 this.timer = setInterval(() => {
                     this.timeLeft--;
                     if (this.timeLeft <= 0) {
-                        this.submitExam();
+                        this.submitExam(false);
                     }
                 }, 1000);
             },
@@ -176,7 +181,7 @@
 
             getShuffledOptions(question) {
                 let opts = [...question.options];
-                if ({{ $isShuffleOptions() ? 'true' : 'false' }}) {
+                if ({{ $this->isShuffleOptions() ? 'true' : 'false' }}) {
                     opts = this.shuffleArray(opts);
                 }
                 return opts;
@@ -195,11 +200,26 @@
                 this.saveAnswer(questionId, value);
             },
 
+            // saveAnswer(questionId, value) {
+            //     window.axios.post('/student/exams/save-answer', {
+            //         attempt_id: this.attemptId,
+            //         question_id: questionId,
+            //         answer: value
+            //     }).catch(() => {});
+            // },
             saveAnswer(questionId, value) {
-                axios.post('/student/exams/save-answer', {
-                    attempt_id: this.attemptId,
-                    question_id: questionId,
-                    answer: value
+                fetch('/student/exams/save-answer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        attempt_id: this.attemptId,
+                        question_id: questionId,
+                        answer: value
+                    })
                 }).catch(() => {});
             },
 
@@ -211,14 +231,68 @@
                 if (this.currentQuestion < this.questions.length - 1) this.currentQuestion++;
             },
 
-            submitExam() {
+            // submitExam(confirmSubmission = true) {
+            //     if (this.isSubmitting || (confirmSubmission && !window.confirm('Submit your exam now?'))) {
+            //         return;
+            //     }
+
+            //     this.isSubmitting = true;
+            //     this.submissionError = '';
+            //     clearInterval(this.timer);
+            //     this.timer = null;
+            //     window.axios.post('/student/exams/submit', {
+            //         attempt_id: this.attemptId
+            //     }, {
+            //         headers: {
+            //             'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            //         },
+            //         timeout: 15000
+            //     }).then((response) => {
+            //         if (! response.data.redirect_url) {
+            //             throw new Error('No result URL was returned.');
+            //         }
+
+            //         window.location.href = response.data.redirect_url;
+            //     }).catch(() => {
+            //         this.isSubmitting = false;
+            //         this.submissionError = 'Unable to submit the exam. Please try again.';
+            //         this.startTimer();
+            //     });
+            // }
+            submitExam(confirmSubmission = true) {
+                if (this.isSubmitting || (confirmSubmission && !window.confirm('Submit your exam now?'))) {
+                    return;
+                }
+
+                this.isSubmitting = true;
+                this.submissionError = '';
                 clearInterval(this.timer);
-                axios.post('/student/exams/submit', {
-                    attempt_id: this.attemptId
-                }).then(() => {
-                    window.location.reload();
+                this.timer = null;
+                
+                fetch('/student/exams/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        attempt_id: this.attemptId
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then((data) => {
+                    if (! data.redirect_url) {
+                        throw new Error('No result URL was returned.');
+                    }
+                    window.location.href = data.redirect_url;
                 }).catch(() => {
-                    window.location.reload();
+                    this.isSubmitting = false;
+                    this.submissionError = 'Unable to submit the exam. Please try again.';
+                    this.startTimer();
                 });
             }
         }

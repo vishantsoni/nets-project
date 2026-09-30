@@ -2,15 +2,9 @@
     <h3 class="text-lg font-semibold mb-4">My Study Materials</h3>
 
     @php
-        $freeMaterials = \App\Models\StudyMaterial::where('is_free', true)->where('is_published', true)->with('subject')->orderBy('created_at', 'desc')->get();
-        $purchasedMaterials = \App\Models\StudyMaterial::where('is_paid', true)->where('is_published', true)
-            ->whereHas('orderItems', function ($q) {
-                $q->where('orders.user_id', auth()->id())->where('orders.payment_status', 'paid');
-            })->with('subject')->orderBy('created_at', 'desc')->get();
-        $paidMaterials = \App\Models\StudyMaterial::where('is_paid', true)->where('is_published', true)
-            ->whereDoesntHave('orderItems', function ($q) {
-                $q->where('orders.user_id', auth()->id())->where('orders.payment_status', 'paid');
-            })->with('subject')->orderBy('created_at', 'desc')->get();
+        $freeMaterials = $this->getFreeMaterials();
+        $purchasedMaterials = $this->getPurchasedMaterials();
+        $paidMaterials = $this->getPaidMaterials();
     @endphp
 
     <div class="mb-6">
