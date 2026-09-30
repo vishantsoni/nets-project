@@ -25,8 +25,7 @@ Homestead.yaml
 .zed
 .nova
 .fleet
-Dockerfile
-.dockerignore
-vercel.json
 check_*.php
 tests
+docker-compose.yml
+.env.production.example
