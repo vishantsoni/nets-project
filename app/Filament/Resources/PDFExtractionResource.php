@@ -1,6 +1,7 @@
 <?php
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\Concerns\ScopesToInstitute;
 use App\Filament\Resources\PDFExtractionResource\Pages;
 use App\Models\PDFExtraction;
 use Filament\Forms;
@@ -11,6 +12,8 @@ use Filament\Tables\Table;
 
 class PDFExtractionResource extends Resource
 {
+    use ScopesToInstitute;
+
     protected static ?string $model = PDFExtraction::class;
     protected static ?string $navigationIcon = "heroicon-o-document-text";
     protected static ?string $navigationGroup = "Question Bank";

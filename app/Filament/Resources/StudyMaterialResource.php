@@ -1,6 +1,7 @@
 <?php
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\Concerns\ScopesToInstitute;
 use App\Filament\Resources\StudyMaterialResource\Pages;
 use App\Models\Category;
 use App\Models\StudyMaterial;
@@ -14,6 +15,8 @@ use Filament\Tables\Table;
 
 class StudyMaterialResource extends Resource
 {
+    use ScopesToInstitute;
+
     protected static ?string $model = StudyMaterial::class;
     protected static ?string $navigationIcon = "heroicon-o-academic-cap";
     protected static ?string $navigationGroup = "Study Materials";

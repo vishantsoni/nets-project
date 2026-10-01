@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ScopesToInstitute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AIExamGeneration extends Model
 {
+    use ScopesToInstitute;
+
     protected $table = 'ai_generations';
 
     protected $fillable = [
@@ -18,6 +21,16 @@ class AIExamGeneration extends Model
         'generated_questions' => 'array',
         'count' => 'integer',
     ];
+
+    protected static function instituteScopeColumn(): ?string
+    {
+        return null;
+    }
+
+    protected static function instituteScopeRelation(): ?string
+    {
+        return 'subject';
+    }
 
     public function subject(): BelongsTo
     {

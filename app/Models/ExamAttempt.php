@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ScopesToInstitute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -10,7 +11,19 @@ use Illuminate\Support\Str;
 
 class ExamAttempt extends Model
 {
+    use ScopesToInstitute;
+
     protected $table = 'exam_attempts';
+
+    protected static function instituteScopeColumn(): ?string
+    {
+        return null;
+    }
+
+    protected static function instituteScopeRelation(): ?string
+    {
+        return 'examination';
+    }
 
     protected $fillable = [
         'uuid', 'user_id', 'examination_id', 'attempt_number',

@@ -1,6 +1,7 @@
 <?php
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\Concerns\ScopesToInstitute;
 use App\Filament\Resources\ExaminationResource\Pages;
 use App\Filament\Resources\ExaminationResource\RelationManagers;
 use App\Models\Examination;
@@ -13,6 +14,8 @@ use Filament\Tables\Table;
 
 class ExaminationResource extends Resource
 {
+    use ScopesToInstitute;
+
     protected static ?string $model = Examination::class;
     protected static ?string $navigationIcon = "heroicon-o-clipboard-document-check";
     protected static ?string $navigationGroup = "Examinations";

@@ -10,7 +10,7 @@ class StudentMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (auth()->check() && auth()->user()->hasRole("student")) {
+        if (auth()->check() && auth()->user()->isStudent()) {
             return $next($request);
         }
 

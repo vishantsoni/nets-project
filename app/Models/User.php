@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ScopesToInstitute;
+use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, Notifiable, HasRoles, ScopesToInstitute;
 
     protected $fillable = [
         'name',
@@ -46,16 +47,40 @@ class User extends Authenticatable
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->is_active && match ($panel->getId()) {
+        if (! $this->is_active) {
+            return false;
+        }
+
+        return match ($panel->getId()) {
             'student' => $this->isStudent(),
-            'admin' => $this->isAdmin(),
+            'admin' => $this->canAccessAdminPanel(),
             default => false,
         };
+    }
+
+    public function canAccessAdminPanel(): bool
+    {
+        return $this->isAdmin() || $this->isInstitute() || $this->isTeacher();
     }
 
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->hasRole('super_admin');
+    }
+
+    public function isPlatformAdmin(): bool
+    {
+        return $this->isAdmin() || $this->isSuperAdmin();
+    }
+
+    public function hasInstitute(): bool
+    {
+        return filled($this->institute_id);
     }
 
     public function isInstitute(): bool

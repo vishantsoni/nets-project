@@ -13,7 +13,6 @@
                         <th class="pb-3">Total</th>
                         <th class="pb-3">Status</th>
                         <th class="pb-3">Payment</th>
-                        <th class="pb-3"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -38,9 +37,6 @@
                                     @else bg-gray-100 text-gray-800 @endif">
                                     {{ ucfirst($order->payment_status) }}
                                 </span>
-                            </td>
-                            <td class="py-3">
-                                <a href="{{ route('student.orders.show', $order->id) }}" class="text-sm text-primary-600 hover:underline">Details</a>
                             </td>
                         </tr>
                     @endforeach

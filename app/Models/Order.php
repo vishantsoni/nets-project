@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ScopesToInstitute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,6 +10,8 @@ use Illuminate\Support\Str;
 
 class Order extends Model
 {
+    use ScopesToInstitute;
+
     protected $fillable = [
         'order_number', 'user_id', 'total_amount', 'discount_amount',
         'tax_amount', 'currency', 'status', 'payment_status', 'payment_method',
@@ -21,6 +24,16 @@ class Order extends Model
         'tax_amount' => 'decimal:2',
         'ordered_at' => 'datetime',
     ];
+
+    protected static function instituteScopeColumn(): ?string
+    {
+        return null;
+    }
+
+    protected static function instituteScopeRelation(): ?string
+    {
+        return 'user';
+    }
 
     protected static function booted()
     {

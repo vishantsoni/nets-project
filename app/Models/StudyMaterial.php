@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ScopesToInstitute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class StudyMaterial extends Model
 {
+    use ScopesToInstitute;
+
     protected $fillable = [
         'title', 'description', 'description_rich', 'book_structure', 'other_information',
         'subject_id', 'topic_id', 'type',

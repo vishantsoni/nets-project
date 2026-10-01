@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ScopesToInstitute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PDFExtraction extends Model
 {
+    use ScopesToInstitute;
+
     protected $table = 'pdf_extractions';
 
     protected $fillable = [
@@ -17,6 +20,16 @@ class PDFExtraction extends Model
     protected $casts = [
         'parsed_questions' => 'array',
     ];
+
+    protected static function instituteScopeColumn(): ?string
+    {
+        return null;
+    }
+
+    protected static function instituteScopeRelation(): ?string
+    {
+        return 'subject';
+    }
 
     public function subject(): BelongsTo
     {

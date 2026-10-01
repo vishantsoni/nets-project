@@ -1,6 +1,7 @@
 <?php
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\Concerns\ScopesToInstitute;
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\Institute;
 use App\Models\User;
@@ -12,6 +13,8 @@ use Filament\Tables\Table;
 
 class UserResource extends Resource
 {
+    use ScopesToInstitute;
+
     protected static ?string $model = User::class;
     protected static ?string $navigationIcon = "heroicon-o-users";
     protected static ?string $navigationGroup = "User Management";
@@ -32,11 +35,16 @@ class UserResource extends Resource
                 ->schema([
                     Forms\Components\Select::make("role")
                         ->required()
-                        ->options(["admin" => "Admin", "institute" => "Coaching Institute", "teacher" => "Teacher", "student" => "Student"])
+                        ->options(fn () => auth()->user()->isPlatformAdmin()
+                            ? ["admin" => "Admin", "institute" => "Coaching Institute", "teacher" => "Teacher", "student" => "Student"]
+                            : ["teacher" => "Teacher", "student" => "Student"])
                         ->default("student"),
                     Forms\Components\Select::make("institute_id")
                         ->relationship("institute", "name")
-                        ->label("Institute"),
+                        ->label("Institute")
+                        ->default(fn () => auth()->user()->institute_id)
+                        ->disabled(fn () => ! auth()->user()->isPlatformAdmin())
+                        ->required(fn () => auth()->user()->isPlatformAdmin()),
                     Forms\Components\Toggle::make("is_active")->default(true),
                 ]),
             Forms\Components\Section::make("Authentication")

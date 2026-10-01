@@ -1,6 +1,7 @@
 <?php
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\Concerns\ScopesToInstitute;
 use App\Filament\Resources\ResultResource\Pages;
 use App\Models\Result;
 use Filament\Forms;
@@ -11,6 +12,8 @@ use Filament\Tables\Table;
 
 class ResultResource extends Resource
 {
+    use ScopesToInstitute;
+
     protected static ?string $model = Result::class;
     protected static ?string $navigationIcon = "heroicon-o-chart-bar";
     protected static ?string $navigationGroup = "Examinations";

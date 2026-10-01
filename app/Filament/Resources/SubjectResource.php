@@ -1,6 +1,7 @@
 <?php
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\Concerns\ScopesToInstitute;
 use App\Filament\Resources\SubjectResource\Pages;
 use App\Models\Institute;
 use App\Models\Subject;
@@ -12,6 +13,8 @@ use Filament\Tables\Table;
 
 class SubjectResource extends Resource
 {
+    use ScopesToInstitute;
+
     protected static ?string $model = Subject::class;
     protected static ?string $navigationIcon = "heroicon-o-book-open";
     protected static ?string $navigationGroup = "Academics";
@@ -26,8 +29,9 @@ class SubjectResource extends Resource
                     Forms\Components\TextInput::make("code")->unique(ignoreRecord: true),
                     Forms\Components\Select::make("institute_id")
                         ->relationship("institute", "name")
-                        ->options(Institute::pluck("name", "id")->toArray())
-                        ->label("Institute"),
+                        ->label("Institute")
+                        ->default(fn () => auth()->user()->institute_id)
+                        ->disabled(fn () => ! auth()->user()->isPlatformAdmin()),
                     Forms\Components\Toggle::make("is_active")->default(true),
                 ])->columns(2),
             Forms\Components\Section::make("Description")

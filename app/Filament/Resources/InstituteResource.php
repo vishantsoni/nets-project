@@ -1,6 +1,7 @@
 <?php
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\Concerns\ScopesToInstitute;
 use App\Filament\Resources\InstituteResource\Pages;
 use App\Models\Institute;
 use Filament\Forms;
@@ -11,6 +12,8 @@ use Filament\Tables\Table;
 
 class InstituteResource extends Resource
 {
+    use ScopesToInstitute;
+
     protected static ?string $model = Institute::class;
     protected static ?string $navigationIcon = "heroicon-o-building-office-2";
     protected static ?string $navigationGroup = "User Management";

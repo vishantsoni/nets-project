@@ -1,6 +1,7 @@
 <?php
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\Concerns\ScopesToInstitute;
 use App\Filament\Resources\QuestionResource\Pages;
 use App\Filament\Resources\QuestionResource\RelationManagers;
 use App\Models\Question;
@@ -14,6 +15,8 @@ use Filament\Tables\Table;
 
 class QuestionResource extends Resource
 {
+    use ScopesToInstitute;
+
     protected static ?string $model = Question::class;
     protected static ?string $navigationIcon = "heroicon-o-question-mark-circle";
     protected static ?string $navigationGroup = "Question Bank";

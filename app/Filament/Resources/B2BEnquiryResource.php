@@ -3,6 +3,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\B2BEnquiryResource\Pages;
 use App\Filament\Resources\B2BEnquiryResource\RelationManagers;
+use App\Filament\Resources\Concerns\ScopesToInstitute;
 use App\Models\B2BEnquiry;
 use App\Models\User;
 use Filament\Forms;
@@ -13,6 +14,8 @@ use Filament\Tables\Table;
 
 class B2BEnquiryResource extends Resource
 {
+    use ScopesToInstitute;
+
     protected static ?string $model = B2BEnquiry::class;
     protected static ?string $navigationIcon = "heroicon-o-building-office";
     protected static ?string $navigationGroup = "B2B";

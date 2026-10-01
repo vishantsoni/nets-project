@@ -1,6 +1,7 @@
 <?php
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\Concerns\ScopesToInstitute;
 use App\Filament\Resources\TopicResource\Pages;
 use App\Models\Topic;
 use Filament\Forms;
@@ -11,6 +12,8 @@ use Filament\Tables\Table;
 
 class TopicResource extends Resource
 {
+    use ScopesToInstitute;
+
     protected static ?string $model = Topic::class;
     protected static ?string $navigationIcon = "heroicon-o-tag";
     protected static ?string $navigationGroup = "Academics";

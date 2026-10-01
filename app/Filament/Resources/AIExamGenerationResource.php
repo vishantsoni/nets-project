@@ -1,6 +1,7 @@
 <?php
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\Concerns\ScopesToInstitute;
 use App\Filament\Resources\AIExamGenerationResource\Pages;
 use App\Models\AIExamGeneration;
 use Filament\Forms;
@@ -11,6 +12,8 @@ use Filament\Tables\Table;
 
 class AIExamGenerationResource extends Resource
 {
+    use ScopesToInstitute;
+
     protected static ?string $model = AIExamGeneration::class;
     protected static ?string $navigationIcon = "heroicon-o-sparkles";
     protected static ?string $navigationGroup = "Question Bank";

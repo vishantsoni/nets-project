@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ScopesToInstitute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Result extends Model
 {
+    use ScopesToInstitute;
+
     protected $fillable = [
         'attempt_id', 'total_questions', 'attempted_questions', 'correct_answers',
         'incorrect_answers', 'unanswered_questions', 'total_marks', 'obtained_marks',
@@ -21,6 +24,16 @@ class Result extends Model
         'subject_wide_performance' => 'array',
         'topic_wide_performance' => 'array',
     ];
+
+    protected static function instituteScopeColumn(): ?string
+    {
+        return null;
+    }
+
+    protected static function instituteScopeRelation(): ?string
+    {
+        return 'attempt.examination';
+    }
 
     public function attempt(): BelongsTo
     {

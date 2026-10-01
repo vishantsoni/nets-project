@@ -40,18 +40,17 @@ class RegisterController extends Controller
             "password" => Hash::make($request->password),
         ]);
 
-        if ($request->role === "student") {
-            $user->assignRole("student");
-        } elseif ($request->role === "teacher") {
-            $user->assignRole("teacher");
-        }
+        $spatieRole = $request->role === "student" ? "student" : "teacher";
+
+        $user->assignRole($spatieRole);
 
         Auth::login($user);
+        $request->session()->regenerate();
 
-        if ($user->hasRole("student")) {
-            return redirect()->route("student.dashboard");
-        }
-
-        return redirect()->route("filament.admin.pages.dashboard");
+        return redirect()->route(
+            $user->isStudent()
+                ? "filament.student.pages.dashboard"
+                : "filament.admin.pages.dashboard"
+        );
     }
 }

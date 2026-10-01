@@ -32,6 +32,8 @@ class DatabaseSeeder extends Seeder
             Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
         }
 
+        $this->call(RolePermissionSeeder::class);
+
         $institute = Institute::create([
             'name' => 'NETS Coaching Institute',
             'slug' => 'nets-coaching',

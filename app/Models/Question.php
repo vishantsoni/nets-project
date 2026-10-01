@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ScopesToInstitute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -10,6 +11,8 @@ use Illuminate\Support\Str;
 
 class Question extends Model
 {
+    use ScopesToInstitute;
+
     protected $fillable = [
         'uuid', 'question_text', 'question_type', 'subject_id', 'topic_id',
         'difficulty', 'marks', 'negative_marks', 'explanation', 'status',

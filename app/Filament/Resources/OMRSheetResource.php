@@ -1,6 +1,7 @@
 <?php
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\Concerns\ScopesToInstitute;
 use App\Filament\Resources\OMRSheetResource\Pages;
 use App\Filament\Resources\OMRSheetResource\RelationManagers;
 use App\Models\OMRSheet;
@@ -12,6 +13,8 @@ use Filament\Tables\Table;
 
 class OMRSheetResource extends Resource
 {
+    use ScopesToInstitute;
+
     protected static ?string $model = OMRSheet::class;
     protected static ?string $navigationIcon = "heroicon-o-camera";
     protected static ?string $navigationGroup = "OMR";

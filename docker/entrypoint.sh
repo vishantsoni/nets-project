@@ -30,6 +30,11 @@ mkdir -p \
     bootstrap/cache \
     2>/dev/null || true
 
+if [ -z "$APP_ENV" ] && [ -f .env.production ]; then
+    APP_ENV=production
+    export APP_ENV
+fi
+
 if [ -z "$APP_KEY" ]; then
     echo "WARNING: APP_KEY is not set. Set it in the environment." >&2
 fi
