@@ -27,8 +27,15 @@ mkdir -p \
     storage/framework/sessions \
     storage/framework/views \
     storage/logs \
+    storage/app/public \
     bootstrap/cache \
     2>/dev/null || true
+
+# The storage volume masks the image's storage/app, so recreate the public
+# symlink that serves uploaded files at /storage.
+if [ ! -e public/storage ]; then
+    ln -sfn ../storage/app/public public/storage 2>/dev/null || true
+fi
 
 if [ -z "$APP_ENV" ] && [ -f .env.production ]; then
     APP_ENV=production
