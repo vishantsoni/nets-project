@@ -35,6 +35,10 @@ class Examination extends Model
 
     protected static function booted()
     {
+        static::saving(function ($exam) {
+            $exam->negative_marks_ratio ??= 0;
+        });
+
         static::creating(function ($exam) {
             if (! $exam->uuid) {
                 $exam->uuid = (string) Str::uuid();

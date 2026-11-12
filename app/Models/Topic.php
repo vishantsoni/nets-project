@@ -4,15 +4,15 @@ namespace App\Models;
 
 use App\Models\Concerns\ScopesToInstitute;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Topic extends Model
 {
     use ScopesToInstitute;
 
     protected $fillable = [
-        'subject_id', 'name', 'description', 'standard_marks', 'time_allocation', 'is_active',
+        'chapter_id', 'name', 'description', 'standard_marks', 'time_allocation', 'is_active',
     ];
 
     protected $casts = [
@@ -28,12 +28,12 @@ class Topic extends Model
 
     protected static function instituteScopeRelation(): ?string
     {
-        return 'subject';
+        return 'chapter.subject';
     }
 
-    public function subject(): BelongsTo
+    public function chapter(): BelongsTo
     {
-        return $this->belongsTo(Subject::class);
+        return $this->belongsTo(Chapter::class);
     }
 
     public function questions(): BelongsToMany

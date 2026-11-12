@@ -15,6 +15,7 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Widgets;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -36,6 +37,14 @@ class StudentPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
+            ->favicon(asset('favicon.png'))
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn () => request()->routeIs(
+                    'filament.student.resources.examinations.take',
+                    'filament.student.resources.results.view',
+                ) ? view('filament.mathlive-assets') : '',
+            )
             ->discoverResources(in: app_path('Filament/Student/Resources'), for: 'App\\Filament\\Student\\Resources')
             ->discoverPages(in: app_path('Filament/Student/Pages'), for: 'App\\Filament\\Student\\Pages')
             ->pages([
@@ -67,6 +76,10 @@ class StudentPanelProvider extends PanelProvider
                 Route::post("exams/submit", [\App\Http\Controllers\StudentExamController::class, "submit"])
                     ->middleware(\App\Http\Middleware\StudentMiddleware::class)
                     ->name("student.exams.submit");
+
+                Route::get("examinations/{examination}/leaderboard", [\App\Http\Controllers\StudentExamController::class, "leaderboard"])
+                    ->middleware(\App\Http\Middleware\StudentMiddleware::class)
+                    ->name("student.exams.leaderboard");
             });
     }
 }

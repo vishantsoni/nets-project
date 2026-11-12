@@ -1,27 +1,27 @@
 <x-filament-panels::page>
     @php($stats = $this->getStats())
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-        <div class="p-6 bg-white rounded-lg shadow">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6 ">
+        <div class="p-6 bg-white rounded-lg shadow dark:bg-gray-800">
             <h3 class="text-sm font-medium text-gray-500">Available Exams</h3>
-            <p class="text-3xl font-bold text-gray-900">{{ $stats['availableExams'] }}</p>
+            <p class="text-3xl font-bold text-gray-500 dark:text-gray-100">{{ $stats['availableExams'] }}</p>
         </div>
-        <div class="p-6 bg-white rounded-lg shadow">
+        <div class="p-6 bg-white rounded-lg shadow dark:bg-gray-800">
             <h3 class="text-sm font-medium text-gray-500">Exams Taken</h3>
-            <p class="text-3xl font-bold text-gray-900">{{ $stats['takenExams'] }}</p>
+            <p class="text-3xl font-bold text-gray-500 dark:text-gray-100">{{ $stats['takenExams'] }}</p>
         </div>
-        <div class="p-6 bg-white rounded-lg shadow">
+        <div class="p-6 bg-white rounded-lg shadow dark:bg-gray-800">
             <h3 class="text-sm font-medium text-gray-500">Pending Results</h3>
-            <p class="text-3xl font-bold text-gray-900">{{ $stats['pendingResults'] }}</p>
+            <p class="text-3xl font-bold text-gray-500 dark:text-gray-100">{{ $stats['pendingResults'] }}</p>
         </div>
-        <div class="p-6 bg-white rounded-lg shadow">
+        <div class="p-6 bg-white rounded-lg shadow dark:bg-gray-800">
             <h3 class="text-sm font-medium text-gray-500">Purchased Materials</h3>
-            <p class="text-3xl font-bold text-gray-900">{{ $stats['purchasedMaterials'] }}</p>
+            <p class="text-3xl font-bold text-gray-500 dark:text-gray-100">{{ $stats['purchasedMaterials'] }}</p>
         </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div>
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg">
             <h3 class="text-lg font-semibold mb-3">Available Exams</h3>
             @if($this->getAvailableExams()->isNotEmpty())
                 <table class="w-full">
@@ -51,7 +51,7 @@
             @endif
         </div>
 
-        <div>
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg">
             <h3 class="text-lg font-semibold mb-3">Recent Results</h3>
             @if($this->getRecentResults()->isNotEmpty())
                 <table class="w-full">

@@ -16,8 +16,13 @@ class QuestionOptionRelationManager extends RelationManager
     public function form(Form $form): Form
     {
         return $form->schema([
-            Forms\Components\Textarea::make("option_text")->required()->rows(2)->label("Option Text"),
-            Forms\Components\TextInput::make("option_value")->label("Option Value"),
+            Forms\Components\Textarea::make("option_text")
+                ->required()
+                ->rows(2)
+                ->label("Option Text")
+                ->extraInputAttributes(["data-math-input" => true]),
+            Forms\Components\TextInput::make("option_value")
+                ->label("Option Value"),
             Forms\Components\Toggle::make("is_correct")->label("Is Correct?"),
             Forms\Components\TextInput::make("sort_order")->integer()->default(0),
         ])->columns(2);
@@ -26,7 +31,9 @@ class QuestionOptionRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table->columns([
-            Tables\Columns\TextColumn::make("option_text")->limit(50),
+            Tables\Columns\TextColumn::make("option_text")
+                ->limit(50)
+                ->extraAttributes(["data-math-content" => true]),
             Tables\Columns\TextColumn::make("option_value"),
             Tables\Columns\IconColumn::make("is_correct")->boolean(),
             Tables\Columns\TextColumn::make("sort_order"),

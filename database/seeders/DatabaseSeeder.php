@@ -17,7 +17,6 @@ use App\Models\Result;
 use App\Models\StudentAnswer;
 use App\Models\StudyMaterial;
 use App\Models\Subject;
-use App\Models\Topic;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -171,9 +170,13 @@ class DatabaseSeeder extends Seeder
                 $topics = ['Grammar', 'Literature', 'Comprehension', 'Writing'];
             }
 
+            $chapter = $subject->chapters()->create([
+                'name' => 'Core Concepts',
+                'is_active' => true,
+            ]);
+
             foreach ($topics as $topicName) {
-                Topic::create([
-                    'subject_id' => $subject->id,
+                $chapter->topics()->create([
                     'name' => $topicName,
                     'description' => $topicName . ' topics for ' . $subject['name'],
                     'standard_marks' => 1,

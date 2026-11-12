@@ -33,4 +33,53 @@ class StudentAnswer extends Model
     {
         return $this->belongsTo(QuestionOption::class, 'selected_option_id');
     }
+
+    public function getStudentAnswerAttribute()
+    {
+        $question = $this->question;
+        if (! $question) {
+            return $this->answer_text;
+        }
+
+        if ($question->question_type === 'mcq') {
+            if ($this->selectedOption) {
+                return $this->selectedOption->option_text;
+            }
+            $option = QuestionOption::find($this->answer_text);
+
+            return $option ? $option->option_text : $this->answer_text;
+        }
+
+        if ($question->question_type === 'true_false') {
+            if ($this->selectedOption) {
+                return $this->selectedOption->option_text;
+            }
+
+            return $this->answer_text ? ucfirst($this->answer_text) : '';
+        }
+
+        return $this->answer_text ?? '';
+    }
+
+    public function getCorrectAnswerDisplayAttribute()
+    {
+        $question = $this->question;
+        if (! $question) {
+            return '';
+        }
+
+        if ($question->question_type === 'mcq') {
+            $correctOptions = $question->options()->where('is_correct', true)->get();
+
+            return $correctOptions->pluck('option_text')->implode(', ');
+        }
+
+        if ($question->question_type === 'true_false') {
+            $correct = $question->options()->where('is_correct', true)->first();
+
+            return $correct ? $correct->option_text : '';
+        }
+
+        return $question->correct_answer_text ?? '';
+    }
 }

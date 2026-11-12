@@ -4,11 +4,15 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\Concerns\ScopesToInstitute;
 use App\Filament\Resources\PDFExtractionResource\Pages;
 use App\Models\PDFExtraction;
+use App\Models\Topic;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class PDFExtractionResource extends Resource
 {
@@ -24,13 +28,76 @@ class PDFExtractionResource extends Resource
         return $form->schema([
             Forms\Components\Section::make("PDF Extraction")
                 ->schema([
-                    Forms\Components\FileUpload::make("file_path")->required()->directory("pdf-extractions")->label("PDF File"),
-                    Forms\Components\Select::make("subject_id")->relationship("subject", "name")->searchable(),
-                    Forms\Components\Select::make("topic_id")->relationship("topic", "name")->searchable(),
+                    Forms\Components\FileUpload::make("file_path")
+                        ->required()
+                        ->label("PDF File")
+                        ->disk("public")
+                        ->directory("pdf-extractions")
+                        ->acceptedFileTypes(["application/pdf"])
+                        ->maxSize(51200)
+                        ->helperText("PDF files up to 50 MB are supported."),
+                    Forms\Components\Select::make("subject_id")
+                        ->required()
+                        ->relationship("subject", "name")
+                        ->searchable()
+                        ->live()
+                        ->afterStateUpdated(fn (Set $set) => $set("topic_id", null)),
+                    Forms\Components\Select::make("topic_id")
+                        ->relationship(
+                            "topic",
+                            "name",
+                            modifyQueryUsing: fn (Builder $query, Get $get) => $query->whereHas(
+                                "chapter",
+                                fn (Builder $query) => $query->where("subject_id", $get("subject_id"))
+                            )
+                        )
+                        ->getOptionLabelFromRecordUsing(fn (Topic $record): string => $record->chapter->name . " / " . $record->name)
+                        ->disabled(fn (Get $get): bool => blank($get("subject_id")))
+                        ->searchable(),
                     Forms\Components\Select::make("status")
-                        ->options(["pending" => "Pending", "processing" => "Processing", "completed" => "Completed", "failed" => "Failed"])->default("pending"),
-                    Forms\Components\Textarea::make("extracted_content")->rows(6)->readOnly(),
-                    Forms\Components\Textarea::make("parsed_questions")->rows(6)->readOnly(),
+                        ->options(["pending" => "Pending", "processing" => "Processing", "completed" => "Completed", "failed" => "Failed"])
+                        ->default("pending")
+                        ->disabled(),
+                    Forms\Components\Textarea::make("extracted_content")
+                        ->rows(6)
+                        ->readOnly()
+                        ->dehydrated(false),
+                    Forms\Components\Repeater::make("parsed_questions")
+                        ->label("Review questions before import")
+                        ->defaultItems(0)
+                        ->itemLabel(fn (array $state): ?string => filled($state["question_text"] ?? null)
+                            ? \Illuminate\Support\Str::limit($state["question_text"], 70)
+                            : "Question")
+                        ->schema([
+                            Forms\Components\Textarea::make("question_text")
+                                ->required()
+                                ->rows(3)
+                                ->extraInputAttributes(["data-math-input" => true])
+                                ->columnSpanFull(),
+                            Forms\Components\Repeater::make("options")
+                                ->label("Answer options")
+                                ->minItems(2)
+                                ->schema([
+                                    Forms\Components\TextInput::make("option_value")->required()->label("Label"),
+                                    Forms\Components\Textarea::make("option_text")
+                                        ->required()
+                                        ->rows(2)
+                                        ->label("Option")
+                                        ->extraInputAttributes(["data-math-input" => true]),
+                                    Forms\Components\Toggle::make("is_correct")->label("Correct answer"),
+                                ])
+                                ->columns(2)
+                                ->columnSpanFull(),
+                            Forms\Components\Toggle::make("selected")
+                                ->label("Include in bulk import")
+                                ->default(true),
+                            Forms\Components\Textarea::make("explanation")
+                                ->rows(2)
+                                ->extraInputAttributes(["data-math-input" => true]),
+                            Forms\Components\Hidden::make("imported_question_id"),
+                        ])
+                        ->columns(2)
+                        ->columnSpanFull(),
                     Forms\Components\Textarea::make("error_message")->rows(3)->readOnly(),
                 ])->columns(2),
         ]);

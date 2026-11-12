@@ -9,9 +9,12 @@ use App\Models\Subject;
 use App\Models\Topic;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class StudyMaterialResource extends Resource
 {
@@ -31,8 +34,23 @@ class StudyMaterialResource extends Resource
                     Forms\Components\Select::make("type")
                         ->required()
                         ->options(["pdf" => "PDF", "video" => "Video", "document" => "Document", "image" => "Image"])->default("pdf"),
-                    Forms\Components\Select::make("subject_id")->relationship("subject", "name")->searchable(),
-                    Forms\Components\Select::make("topic_id")->relationship("topic", "name")->searchable(),
+                    Forms\Components\Select::make("subject_id")
+                        ->relationship("subject", "name")
+                        ->searchable()
+                        ->live()
+                        ->afterStateUpdated(fn (Set $set) => $set("topic_id", null)),
+                    Forms\Components\Select::make("topic_id")
+                        ->relationship(
+                            "topic",
+                            "name",
+                            modifyQueryUsing: fn (Builder $query, Get $get) => $query->whereHas(
+                                "chapter",
+                                fn (Builder $query) => $query->where("subject_id", $get("subject_id"))
+                            )
+                        )
+                        ->getOptionLabelFromRecordUsing(fn (Topic $record): string => $record->chapter->name . " / " . $record->name)
+                        ->disabled(fn (Get $get): bool => blank($get("subject_id")))
+                        ->searchable(),
                 ])->columns(2),
             Forms\Components\Section::make("Media")
                 ->schema([

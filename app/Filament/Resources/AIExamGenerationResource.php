@@ -4,11 +4,15 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\Concerns\ScopesToInstitute;
 use App\Filament\Resources\AIExamGenerationResource\Pages;
 use App\Models\AIExamGeneration;
+use App\Models\Topic;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class AIExamGenerationResource extends Resource
 {
@@ -24,8 +28,24 @@ class AIExamGenerationResource extends Resource
         return $form->schema([
             Forms\Components\Section::make("AI Generation")
                 ->schema([
-                    Forms\Components\Select::make("subject_id")->required()->relationship("subject", "name")->searchable(),
-                    Forms\Components\Select::make("topic_id")->relationship("topic", "name")->searchable(),
+                    Forms\Components\Select::make("subject_id")
+                        ->required()
+                        ->relationship("subject", "name")
+                        ->searchable()
+                        ->live()
+                        ->afterStateUpdated(fn (Set $set) => $set("topic_id", null)),
+                    Forms\Components\Select::make("topic_id")
+                        ->relationship(
+                            "topic",
+                            "name",
+                            modifyQueryUsing: fn (Builder $query, Get $get) => $query->whereHas(
+                                "chapter",
+                                fn (Builder $query) => $query->where("subject_id", $get("subject_id"))
+                            )
+                        )
+                        ->getOptionLabelFromRecordUsing(fn (Topic $record): string => $record->chapter->name . " / " . $record->name)
+                        ->disabled(fn (Get $get): bool => blank($get("subject_id")))
+                        ->searchable(),
                     Forms\Components\Select::make("question_type")->required()
                         ->options(["mcq" => "MCQ", "integer" => "Integer", "true_false" => "True/False", "fill_blank" => "Fill in the Blank", "essay" => "Essay"])->default("mcq"),
                     Forms\Components\TextInput::make("count")->integer()->required()->default(10),

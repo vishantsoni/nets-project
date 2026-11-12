@@ -37,7 +37,11 @@ class ExaminationResource extends Resource
                     Forms\Components\TextInput::make("passing_marks")->integer()->label("Passing Marks"),
                     Forms\Components\TextInput::make("max_attempts")->integer()->label("Max Attempts")->default(1),
                     Forms\Components\Toggle::make("negative_marking"),
-                    Forms\Components\TextInput::make("negative_marks_ratio")->numeric()->label("Negative Ratio"),
+                    Forms\Components\TextInput::make("negative_marks_ratio")
+                        ->numeric()
+                        ->default(0)
+                        ->dehydrateStateUsing(fn ($state): float => filled($state) ? (float) $state : 0)
+                        ->label("Negative Ratio"),
                     Forms\Components\Toggle::make("shuffle_questions")->default(false),
                     Forms\Components\Toggle::make("shuffle_options")->default(false),
                     Forms\Components\Toggle::make("show_result_immediately")->default(true),
@@ -49,7 +53,13 @@ class ExaminationResource extends Resource
                     Forms\Components\Toggle::make("is_published")->default(false),
                 ])->columns(2),
             Forms\Components\Section::make("Description")
-                ->schema([Forms\Components\Textarea::make("description")->rows(4)]),
+                ->schema([
+                    Forms\Components\RichEditor::make("description")->toolbarButtons([
+                        "bold", "italic", "underline", "strike",
+                        "h2", "h3", "bulletList", "orderedList",
+                        "link", "blockquote", "undo", "redo",
+                    ]),
+                ]),
         ]);
     }
 

@@ -50,11 +50,29 @@ class TakeExam extends Page
         // per-exam marks/sort_order, and so section_id (nullable) does not
         // accidentally filter questions out of the student's view.
         return $this->exam->examQuestions()
-            ->with("question.options")
+            ->with([
+                "question.options",
+                "question.subject",
+                "question.topic.chapter.subject",
+                "question.topics.chapter.subject",
+                "section",
+            ])
+            ->orderByRaw("section_id IS NULL")
+            ->orderBy("section_id")
             ->orderBy("sort_order")
             ->get()
             ->map(function ($examQuestion) {
                 $q = $examQuestion->question;
+                $topics = collect([$q->topic])
+                    ->filter()
+                    ->merge($q->topics)
+                    ->unique("id")
+                    ->values();
+                $subjectNames = collect([$q->subject?->name])
+                    ->merge($topics->map(fn ($topic) => $topic->chapter?->subject?->name))
+                    ->filter()
+                    ->unique()
+                    ->implode(", ");
 
                 return [
                     "id" => $q->id,
@@ -62,6 +80,14 @@ class TakeExam extends Page
                     "type" => $q->question_type,
                     "options" => $q->options,
                     "marks" => $examQuestion->marks,
+                    "section_id" => $examQuestion->section_id,
+                    "section" => $examQuestion->section?->title,
+                    "subject" => $subjectNames,
+                    "chapter" => $topics->map(fn ($topic) => $topic->chapter?->name)
+                        ->filter()
+                        ->unique()
+                        ->implode(", "),
+                    "topic" => $topics->pluck("name")->filter()->unique()->implode(", "),
                 ];
             })->toArray();
     }

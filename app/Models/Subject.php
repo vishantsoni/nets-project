@@ -6,6 +6,7 @@ use App\Models\Concerns\ScopesToInstitute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Subject extends Model
 {
@@ -24,9 +25,14 @@ class Subject extends Model
         return $this->belongsTo(Institute::class);
     }
 
-    public function topics(): HasMany
+    public function chapters(): HasMany
     {
-        return $this->hasMany(Topic::class);
+        return $this->hasMany(Chapter::class);
+    }
+
+    public function topics(): HasManyThrough
+    {
+        return $this->hasManyThrough(Topic::class, Chapter::class);
     }
 
     public function questions(): HasMany

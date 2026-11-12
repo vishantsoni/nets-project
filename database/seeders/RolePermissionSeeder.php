@@ -43,6 +43,7 @@ class RolePermissionSeeder extends Seeder
 
     private const TEACHER_ALLOWED = [
         'view_any_subject', 'view_subject',
+        'view_any_chapter', 'view_chapter', 'create_chapter', 'update_chapter',
         'view_any_topic', 'view_topic', 'create_topic', 'update_topic',
         'view_any_question', 'view_question', 'create_question', 'update_question', 'delete_question',
         'view_any_examination', 'view_examination', 'create_examination', 'update_examination',

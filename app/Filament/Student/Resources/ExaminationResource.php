@@ -40,7 +40,11 @@ class ExaminationResource extends Resource
                     Forms\Components\DateTimePicker::make("end_time")->disabled(),
                 ])->columns(2),
             Forms\Components\Section::make("Description")
-                ->schema([Forms\Components\Textarea::make("description")->rows(4)->readOnly()]),
+                ->schema([
+                    Forms\Components\RichEditor::make("description")
+                        ->toolbarButtons([])
+                        ->readOnly(),
+                ]),
         ]);
     }
 

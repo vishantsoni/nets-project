@@ -18,6 +18,15 @@ class ResultResource extends Resource
     protected static ?string $navigationLabel = "My Results";
     protected static ?int $navigationSort = 3;
 
+    protected static ?string $recordTitleAttribute = 'attempt.examination.title';
+
+    public static function getRelations(): array
+    {
+        return [
+            \App\Filament\Student\Resources\ResultResource\RelationManagers\StudentAnswerRelationManager::class,
+        ];
+    }
+
     public static function form(Form $form): Form
     {
         return $form->schema([
@@ -47,19 +56,15 @@ class ResultResource extends Resource
             Tables\Columns\TextColumn::make("total_marks")->label("Total"),
             Tables\Columns\TextColumn::make("percentage")->label("%"),
             Tables\Columns\TextColumn::make("correct_answers")->label("Correct"),
-            Tables\Columns\BadgeColumn::make("is_passed")
+            Tables\Columns\IconColumn::make("is_passed")
                 ->label("Status")
-                ->colors(["success" => true, "danger" => false])
-                ->trueLabel("PASSED")->falseLabel("FAILED"),
+                ->boolean()
+                ->trueIcon("heroicon-o-check-circle")
+                ->falseIcon("heroicon-o-x-circle"),
             Tables\Columns\TextColumn::make("created_at")->dateTime(),
         ])->defaultSort("created_at", "desc")
           ->actions([Tables\Actions\ViewAction::make()])
           ->bulkActions([]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [];
     }
 
     public static function getPages(): array
