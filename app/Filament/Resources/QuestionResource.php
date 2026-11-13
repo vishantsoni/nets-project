@@ -78,8 +78,6 @@ class QuestionResource extends Resource
                         ->searchable(),
                     Forms\Components\Select::make("difficulty")
                         ->options(["easy" => "Easy", "medium" => "Medium", "hard" => "Hard"])->default("medium"),
-                    Forms\Components\TextInput::make("marks")->integer()->default(1),
-                    Forms\Components\TextInput::make("negative_marks")->integer()->default(0),
                     Forms\Components\Textarea::make("correct_answer_text")
                         ->rows(2)
                         ->label("Correct Answer (for non-MCQ)")
@@ -135,7 +133,6 @@ class QuestionResource extends Resource
                 ->colors(["primary" => "mcq", "warning" => "integer", "success" => "true_false", "info" => "fill_blank", "secondary" => "essay"]),
             Tables\Columns\TextColumn::make("subject.name")->label("Subject"),
             Tables\Columns\TextColumn::make("difficulty"),
-            Tables\Columns\TextColumn::make("marks")->label("Marks"),
             Tables\Columns\BadgeColumn::make("status")
                 ->colors(["gray" => "draft", "warning" => "published", "success" => "archived"]),
         ])->defaultSort("created_at", "desc")

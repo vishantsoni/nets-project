@@ -82,8 +82,6 @@ class EditPDFExtraction extends EditRecord
                     'subject_id' => $this->record->subject_id,
                     'topic_id' => $this->record->topic_id,
                     'difficulty' => 'medium',
-                    'marks' => 1,
-                    'negative_marks' => 0,
                     'explanation' => filled($questionData['explanation'] ?? null)
                         ? trim($questionData['explanation'])
                         : null,

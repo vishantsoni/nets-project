@@ -55,7 +55,7 @@ class StudentExamController extends Controller
         }
 
         $exam = $attempt->examination;
-        $questions = $exam->questions;
+        $examQuestions = $exam->examQuestions()->with('question.options')->get();
         $totalMarks = 0;
         $obtainedMarks = 0;
         $correct = 0;
@@ -64,8 +64,10 @@ class StudentExamController extends Controller
 
         $answers = StudentAnswer::where('attempt_id', $attempt->id)->get();
 
-        foreach ($questions as $question) {
-            $totalMarks += $question->marks;
+        foreach ($examQuestions as $examQuestion) {
+            $question = $examQuestion->question;
+            $marks = (float) $examQuestion->marks;
+            $totalMarks += $marks;
             $answer = $answers->firstWhere('question_id', $question->id);
 
             if (! $answer || $answer->answer_text === null || $answer->answer_text === '') {
@@ -79,12 +81,12 @@ class StudentExamController extends Controller
             $marksObtained = 0;
             if ($isCorrect) {
                 $correct++;
-                $marksObtained = $question->marks;
-                $obtainedMarks += $question->marks;
+                $marksObtained = $marks;
+                $obtainedMarks += $marks;
             } else {
                 $incorrect++;
                 if ($exam->negative_marking) {
-                    $deduction = $question->marks * ($exam->negative_marks_ratio ?? 0.25);
+                    $deduction = $marks * ($exam->negative_marks_ratio ?? 0.25);
                     $marksObtained = -$deduction;
                     $obtainedMarks -= $deduction;
                 }
@@ -112,8 +114,8 @@ class StudentExamController extends Controller
         $result = Result::updateOrCreate(
             ['attempt_id' => $attempt->id],
             [
-                'total_questions' => $questions->count(),
-                'attempted_questions' => $questions->count() - $unanswered,
+                'total_questions' => $examQuestions->count(),
+                'attempted_questions' => $examQuestions->count() - $unanswered,
                 'correct_answers' => $correct,
                 'incorrect_answers' => $incorrect,
                 'unanswered_questions' => $unanswered,

@@ -15,14 +15,12 @@ class Question extends Model
 
     protected $fillable = [
         'uuid', 'question_text', 'question_type', 'subject_id', 'topic_id',
-        'difficulty', 'marks', 'negative_marks', 'explanation', 'status',
+        'difficulty', 'explanation', 'status',
         'is_ai_generated', 'correct_answer_text', 'institute_id', 'created_by',
     ];
 
     protected $casts = [
         'is_ai_generated' => 'boolean',
-        'marks' => 'integer',
-        'negative_marks' => 'integer',
     ];
 
     protected static function booted()
