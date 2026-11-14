@@ -195,7 +195,7 @@ class ExamQuestionRelationManager extends RelationManager
                           ->searchable()
                           ->live()
                           ->disabled(fn (Get $get): bool => blank($get("filter_chapter_id")))
-                          ->afterStateUpdated(fn (Set $set) => $set("question_ids", null)),
+                          ->afterStateUpdated(fn (Set $set) => $set("question_ids", [])),
                       Forms\Components\CheckboxList::make("question_ids")
                           ->label("Questions")
                           ->required()
@@ -232,16 +232,34 @@ class ExamQuestionRelationManager extends RelationManager
                           ->helperText("The same marks value will be used for every selected question."),
                   ])
                   ->action(function (array $data): void {
-                      $questionIds = collect($data["question_ids"])->map(fn ($id): int => (int) $id)->unique()->values();
-                      $questions = Question::query()
-                          ->where("status", "published")
-                          ->forInstitute(auth()->user())
+                      $selectedIds = $data["question_ids"] ?? null;
+                      if (! is_array($selectedIds) || $selectedIds === []) {
+                          throw ValidationException::withMessages([
+                              "question_ids" => "Select at least one question.",
+                          ]);
+                      }
+
+                      if (collect($selectedIds)->contains(
+                          fn ($id): bool => ! is_int($id) && (! is_string($id) || ! ctype_digit($id))
+                      )) {
+                          throw ValidationException::withMessages([
+                              "question_ids" => "Select questions using the checkboxes.",
+                          ]);
+                      }
+
+                      $questionIds = collect($selectedIds)->map(fn ($id): int => (int) $id)->unique()->values();
+                      $questions = $this->applyQuestionFilterValues(
+                          Question::query(),
+                          $data["filter_subject_id"] ?? null,
+                          $data["filter_chapter_id"] ?? null,
+                          $data["filter_topic_id"] ?? null
+                      )
                           ->whereIn("id", $questionIds)
                           ->get(["id"]);
 
                       if ($questions->count() !== $questionIds->count()) {
                           throw ValidationException::withMessages([
-                              "question_ids" => "Select only published questions available to your institute.",
+                              "question_ids" => "Some selected questions do not match the current filters. Refresh the list and select again.",
                           ]);
                       }
 
@@ -290,24 +308,38 @@ class ExamQuestionRelationManager extends RelationManager
 
     private function applyQuestionFilters(Builder $query, Get $get): Builder
     {
+        return $this->applyQuestionFilterValues(
+            $query,
+            $get("filter_subject_id"),
+            $get("filter_chapter_id"),
+            $get("filter_topic_id")
+        );
+    }
+
+    private function applyQuestionFilterValues(
+        Builder $query,
+        mixed $subjectId,
+        mixed $chapterId,
+        mixed $topicId
+    ): Builder {
         $query->where("status", "published")
             ->forInstitute(auth()->user());
 
-        if (blank($get("filter_subject_id"))) {
+        if (blank($subjectId)) {
             return $query->whereRaw("1 = 0");
         }
 
-        $query->where("subject_id", $get("filter_subject_id"));
+        $query->where("subject_id", $subjectId);
 
-        if (filled($get("filter_chapter_id"))) {
+        if (filled($chapterId)) {
             $query->whereHas(
                 "topic",
-                fn (Builder $topicQuery) => $topicQuery->where("chapter_id", $get("filter_chapter_id"))
+                fn (Builder $topicQuery) => $topicQuery->where("chapter_id", $chapterId)
             );
         }
 
-        if (filled($get("filter_topic_id"))) {
-            $query->where("topic_id", $get("filter_topic_id"));
+        if (filled($topicId)) {
+            $query->where("topic_id", $topicId);
         }
 
         return $query;
