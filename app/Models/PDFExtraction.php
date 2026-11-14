@@ -14,7 +14,7 @@ class PDFExtraction extends Model
 
     protected $fillable = [
         'file_path', 'status', 'extracted_content', 'parsed_questions',
-        'subject_id', 'topic_id', 'uploaded_by', 'error_message',
+        'subject_id', 'topic_id', 'examination_id', 'uploaded_by', 'error_message',
     ];
 
     protected $casts = [
@@ -39,6 +39,11 @@ class PDFExtraction extends Model
     public function topic(): BelongsTo
     {
         return $this->belongsTo(Topic::class);
+    }
+
+    public function examination(): BelongsTo
+    {
+        return $this->belongsTo(Examination::class);
     }
 
     public function uploadedBy(): BelongsTo

@@ -3,7 +3,7 @@ import 'mathlive/static.css';
 import 'mathlive/fonts.css';
 import '../css/math-content.css';
 
-const formulaPattern = /\\\(([\s\S]+?)\\\)|\\\[([\s\S]+?)\\\]/g;
+const formulaPattern = /\\\(([\s\S]+?)\\\)|\\\[([\s\S]+?)\\\]|\$([^\$]+?)\$/g;
 const formulaComposers = new WeakMap();
 
 function renderMath(element, content) {
@@ -13,7 +13,7 @@ function renderMath(element, content) {
 
     let position = 0;
     for (const match of value.matchAll(formulaPattern)) {
-        const formula = match[1] ?? match[2];
+        const formula = match[1] ?? match[2] ?? match[3];
         const index = match.index ?? 0;
 
         element.append(document.createTextNode(value.slice(position, index)));
@@ -31,7 +31,7 @@ function renderMath(element, content) {
     element.append(document.createTextNode(value.slice(position)));
     element.dataset.renderedMathContent = value.replace(
         formulaPattern,
-        (_match, inlineFormula, displayFormula) => inlineFormula ?? displayFormula ?? '',
+        (_match, inlineFormula, displayFormula, dollarFormula) => inlineFormula ?? displayFormula ?? dollarFormula ?? '',
     );
 }
 

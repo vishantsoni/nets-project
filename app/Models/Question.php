@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\ScopesToInstitute;
+use App\Services\QuestionTextNormalizer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -29,6 +30,10 @@ class Question extends Model
             if (! $question->uuid) {
                 $question->uuid = (string) Str::uuid();
             }
+        });
+
+        static::saving(function ($question) {
+            $question->question_hash = QuestionTextNormalizer::hash($question->question_text);
         });
     }
 

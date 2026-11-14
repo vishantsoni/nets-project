@@ -4,8 +4,7 @@ namespace App\Filament\Resources\PDFExtractionResource\Pages;
 
 use App\Filament\Resources\PDFExtractionResource;
 use App\Models\PDFExtraction;
-use App\Services\PdfExtraction\McqQuestionParser;
-use App\Services\PdfExtraction\PdfContentExtractor;
+use App\Services\QuestionAiService;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\Auth;
@@ -32,23 +31,30 @@ class CreatePDFExtraction extends CreateRecord
         $record->update(['status' => 'processing', 'error_message' => null]);
 
         try {
-            $content = app(PdfContentExtractor::class)->extract($record->file_path);
-            $questions = app(McqQuestionParser::class)->parse($content);
+            $result = app(QuestionAiService::class)->extractAndParsePdf($record->file_path);
+            $questions = array_map(
+                fn (array $question): array => [
+                    ...$question,
+                    'selected' => true,
+                    'imported_question_id' => null,
+                ],
+                $result['questions'],
+            );
 
             $record->update([
-                'extracted_content' => $content,
+                'extracted_content' => $result['text'],
                 'parsed_questions' => $questions,
                 'status' => 'completed',
                 'error_message' => $questions === []
-                    ? 'The PDF text was read, but no MCQ questions with labeled options were recognized. Review the extracted text and use the Question Bank to add questions manually.'
+                    ? 'The PDF text was read, but no questions with four options and a clear correct answer were recognized.'
                     : null,
             ]);
 
             if ($questions === []) {
                 Notification::make()
                     ->warning()
-                    ->title('PDF text extracted, but no questions were recognized')
-                    ->body('Review the extracted content, then add or correct questions before importing.')
+                    ->title('PDF text extracted, but no eligible questions were recognized')
+                    ->body('Review the extracted content. Questions are imported only when four options and one correct answer can be identified.')
                     ->send();
 
                 return;

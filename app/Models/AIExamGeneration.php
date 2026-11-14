@@ -13,7 +13,7 @@ class AIExamGeneration extends Model
     protected $table = 'ai_generations';
 
     protected $fillable = [
-        'subject_id', 'topic_id', 'question_type', 'count', 'difficulty',
+        'subject_id', 'chapter_id', 'topic_id', 'examination_id', 'question_type', 'count', 'difficulty', 'language',
         'prompt', 'generated_questions', 'status', 'created_by', 'error_message',
     ];
 
@@ -40,6 +40,16 @@ class AIExamGeneration extends Model
     public function topic(): BelongsTo
     {
         return $this->belongsTo(Topic::class);
+    }
+
+    public function chapter(): BelongsTo
+    {
+        return $this->belongsTo(Chapter::class);
+    }
+
+    public function examination(): BelongsTo
+    {
+        return $this->belongsTo(Examination::class);
     }
 
     public function createdBy(): BelongsTo

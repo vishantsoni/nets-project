@@ -6,14 +6,15 @@
     "keywords": ["laravel", "framework"],
     "license": "MIT",
     "require": {
-        "php": "^8.2",
+        "php": "^8.3",
         "bezhansalleh/filament-shield": "^3.0",
         "filament/filament": "^3.0",
         "intervention/image": "^3.0",
-        "laravel/framework": "^11.31",
+        "laravel/ai": "1.4",
+        "laravel/framework": "12.62",
         "laravel/tinker": "^2.9",
         "maatwebsite/excel": "^3.1",
-        "smalot/pdfparser": "^2.12",
+        "smalot/pdfparser": "2.12",
         "spatie/laravel-permission": "^6.0"
     },
     "require-dev": {
@@ -71,6 +72,9 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
+        },
+        "platform": {
+            "php": "8.3.0"
         }
     },
     "minimum-stability": "stable",
